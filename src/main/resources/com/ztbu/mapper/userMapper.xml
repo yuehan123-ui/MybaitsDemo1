@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--sql映射文件-->
+
+<!--
+    namespace:名称空间     用于区分多个Mapper中的相同sql语句 相当于一个包
+-->
+
+<mapper namespace="com.ztbu.mapper.userMapper">
+
+    <!--statement-->
+<!--    <select id="selectAll" resultType="user"> /*resultType: 返回类型 */
+        select * from tb_user;
+    </select>-->
+
+
+
+</mapper>

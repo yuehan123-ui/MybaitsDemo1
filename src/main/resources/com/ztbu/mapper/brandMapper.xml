@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--sql映射文件-->
+
+<!--
+    namespace:名称空间     用于区分多个Mapper中的相同sql语句 相当于一个包
+-->
+
+<mapper namespace="com.ztbu.mapper.brandMapper">
+    <!--
+       数据库表的字段名称  和  实体类的属性名称 不一样，则不能自动封装数据
+           * 起别名：对不一样的列名起别名，让别名和实体类的属性名一样
+               * 缺点：每次查询都要定义一次别名
+                   * sql片段
+                       * 缺点：不灵活
+           * resultMap：
+               1. 定义<resultMap>标签
+               2. 在<select>标签中，使用resultMap属性替换 resultType属性
+
+   -->
+    <!--
+        id：唯一标识
+        type：映射的类型，支持别名
+    -->
+    <resultMap id="brandResultMap" type="brand">
+        <!--
+            id：完成主键字段的映射
+                column：表的列名
+                property：实体类的属性名
+            result：完成一般字段的映射
+                column：表的列名
+                property：实体类的属性名
+        -->
+        <result column="brand_name" property="brandName"/>
+        <result column="company_name" property="companyName"/>
+    </resultMap>
+
+
+
+    <!--  Mybatis 占位符  #{} 使参数变为 ？ 防止sql注入  !-->
+    <!--xml文档处理特殊字符（<）  ：  1.转义字符 2.CDATA区  CD + 回车-->
+    <select id="selectAll" resultMap="brandResultMap">
+        select *
+        from tb_brand;
+    </select>
+    <select id="selectById" resultType="brand">
+        select *
+        from tb_brand
+        where id = #{id};
+    </select>
+    <select id="selectByTj" resultMap="brandResultMap">
+        select * from tb_brand
+        <where>
+            <if test="status!=null">and status = #{status}</if>
+            <if test="brandName != null and brandName != ''">and brand_name like #{brandName}</if>
+            <if test="companyName != null and companyName != ''">and company_name like #{companyName}</if>
+        </where>
+    </select>
+    <select id="selectByTjSingle" resultMap="brandResultMap">
+        select *
+        from tb_brand
+            /* choose  相当于switch  when 相当于 case  test 就是case的值*/
+        <where>
+            <choose>
+                <when test="status!=null">status = #{status}</when>
+                <when test="brandName!=null and brandName!=''">brand_name like #{brandName}</when>
+                <when test="companyName!=null and companyName != ''">company_name like #{companyName}</when>
+            </choose>
+        </where>
+    </select>
+
+    <insert id="add"  useGeneratedKeys="true" keyProperty="id"><!--返回添加数据的主键 keyProperty:主键属性-->
+        insert into tb_brand(brand_name,company_name,ordered,description,status)
+        values (#{brandName},#{companyName},#{ordered},#{description},#{status});
+    </insert>
+
+    <update id="update">
+        update tb_brand
+        <set> /* set标签用于动态sql需要修改的列 忽略不需要修改的列*/
+            <if test="brandName!=null and brandName!=''">brand_name = #{brandName},</if>
+            <if test="companyName!=null and companyName!=''">company_name = #{companyName},</if>
+            <if test="ordered!=null">ordered = #{ordered},</if>
+            <if test="description!=null and description!=''">description = #{description},</if>
+            <if test="status!=null">status = #{status}</if>
+        </set>
+        where id = #{id};
+    </update>
+
+    <delete id="delete" >
+        delete
+        from tb_brand
+        where id = #{id};
+    </delete>
+
+    <!--collection 属性：    item属性：返回的属性值 separator:SQL语句分隔符 open：在拼接SQL语句之前拼接的语句，只会拼接一次 close：之后拼接的语句
+    * mybatis会将数组参数，封装为一个Map集合。
+         * 默认：array = 数组
+         * 使用@Param注解改变map集合的默认key的名称-->
+    <delete id="deletes">
+        delete
+        from tb_brand
+        where  id  in
+    <foreach collection="array"  item="id" separator=","  open="(" close=")">
+    #{id}
+    </foreach>
+    ;
+    </delete>
+
+
+</mapper>
